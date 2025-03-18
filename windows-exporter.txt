@@ -1,0 +1,3 @@
+https://github.com/prometheus-community/windows_exporter/releases/download/v0.30.0-rc.4/windows_exporter-0.30.0-rc.4-amd64.msi
+Install windows exporter in windows machine
+http://localhost:3000/dashboards  >  New  >  Import  >  Import dashboard ID  >  10467 or 14451  >  load

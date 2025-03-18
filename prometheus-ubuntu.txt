@@ -1,0 +1,72 @@
+wget https://github.com/prometheus/prometheus/releases/download/v2.47.0/prometheus-2.47.0.linux-amd64.tar.gz
+
+tar -xvf prometheus-2.47.0.linux-amd64.tar.gz
+cd prometheus-2.47.0.linux-amd64
+
+sudo useradd --no-create-home --shell /bin/false prometheus
+
+sudo mkdir /etc/prometheus
+sudo mkdir /var/lib/prometheus
+
+sudo cp prometheus /usr/local/bin/
+sudo cp promtool /usr/local/bin/
+
+sudo cp -r consoles /etc/prometheus
+sudo cp -r console_libraries /etc/prometheus
+sudo cp prometheus.yml /etc/prometheus
+
+sudo chown -R prometheus:prometheus /etc/prometheus
+sudo chown prometheus:prometheus /usr/local/bin/prometheus
+sudo chown prometheus:prometheus /usr/local/bin/promtool
+sudo chown -R prometheus:prometheus /var/lib/prometheus
+
+sudo nano /etc/systemd/system/prometheus.service
+------------------------------------------------
+[Unit]
+Description=Prometheus Monitoring
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=prometheus
+Group=prometheus
+Type=simple
+ExecStart=/usr/local/bin/prometheus \
+  --config.file=/etc/prometheus/prometheus.yml \
+  --storage.tsdb.path=/var/lib/prometheus/ \
+  --web.console.templates=/etc/prometheus/consoles \
+  --web.console.libraries=/etc/prometheus/console_libraries
+
+[Install]
+WantedBy=multi-user.target
+-------------------------------------------------
+
+sudo systemctl daemon-reload
+
+sudo systemctl start prometheus
+
+sudo systemctl enable prometheus
+
+curl http://localhost:9090/metrics
+
+Next Node Exporter Agent install
+
+sudo cd /etc/prometheus
+
+sudo nano /etc/prometheus/prometheus.yml
+
+nano prometheus.yml
+-----------------------------------------
+  - job_name: "arun"
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    static_configs:
+      - targets: ["localhost:9100"]
+-----------------------------------------
+sudo systemctl daemon-reload
+sudo systemctl restart prometheus
+
+next grafana_install.txt
+

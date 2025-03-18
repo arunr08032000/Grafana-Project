@@ -1,0 +1,114 @@
+sudo yum update -y
+sudo yum upgrade -y
+
+1. Import the GPG key:
+wget -q -O gpg.key https://rpm.grafana.com/gpg.key
+sudo rpm --import gpg.key
+
+2. Create /etc/yum.repos.d/grafana.repo with the following content:
+sudo nano /etc/yum.repos.d/grafana.repo
+---------------------------------------
+[grafana]
+name=grafana
+baseurl=https://rpm.grafana.com
+repo_gpgcheck=1
+enabled=1
+gpgcheck=1
+gpgkey=https://rpm.grafana.com/gpg.key
+sslverify=1
+sslcacert=/etc/pki/tls/certs/ca-bundle.crt
+---------------------------------------
+
+3. To install Grafana OSS, run the following command:
+sudo dnf install grafana
+
+4. To install Grafana Enterprise, run the following command:
+sudo dnf install grafana-enterprise
+or
+sudo dnf install grafana-enterprise --allowerasing
+
+5. Enable and Start the Grafana Service
+sudo systemctl enable grafana-server
+sudo systemctl start grafana-server
+
+6. Check Grafana Status
+sudo systemctl status grafana-server
+
+7. Adjust Firewall Rules (If Applicable)
+sudo firewall-cmd --add-port=3000/tcp --permanent
+sudo firewall-cmd --reload
+
+8. Access Grafana
+Open a web browser and go to: http://<your-server-ip>:3000
+The default login credentials are:
+        Username: admin
+        Password: admin (You will be prompted to change this after the first login).
+
+9. Adjust Firewall Rules (If Applicable for other user)
+sudo firewall-cmd --permanent --add-rich-rule='rule family="ipv4" source address="<IP_ADDRESS>" port protocol="tcp" port="3000" accept'
+sudo firewall-cmd --reload
+
+###############################Instalation Troubleshoot############################
+1. Check Network Connectivity
+ping -c 4 google.com
+
+2. Verify DNS Configuration
+sudo nano /etc/resolv.conf
+---------------------------
+nameserver 8.8.8.8
+---------------------------
+
+3. Test Repository URL
+curl -I https://packages.grafana.com/oss/rpm/repodata/repomd.xml
+
+4. Update CA Certificates
+sudo yum install ca-certificates -y
+sudo update-ca-trust
+
+5. Retry the Installation
+sudo yum clean all
+sudo yum update -y
+sudo yum install grafana -y
+
+6. Check for Firewall or SELinux Issues
+sudo systemctl stop firewalld
+sudo setenforce 0
+
+###############################Prometheus Instalation############################
+1. Download Prometheus:
+wget https://github.com/prometheus/prometheus/releases/download/v3.1.0/prometheus-3.1.0.linux-amd64.tar.gz
+
+2. Extract the Archive:
+tar -xvzf prometheus-3.1.0.linux-amd64.tar.gz
+
+3. Move Files:
+sudo mv prometheus-3.1.0.linux-amd64 /etc/prometheus
+sudo ln -s /etc/prometheus/prometheus /usr/local/bin/prometheus
+sudo ln -s /etc/prometheus/promtool /usr/local/bin/promtool
+
+4. Set Up Prometheus Directories
+sudo mkdir /var/lib/prometheus
+sudo chown prometheus:prometheus /var/lib/prometheus
+sudo chown -R prometheus:prometheus /etc/prometheus
+
+5. Create a Systemd Service File
+sudo nano /etc/systemd/system/prometheus.service
+------------------------------------------------
+[Unit]
+Description=Prometheus Monitoring
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=prometheus
+Group=prometheus
+Type=simple
+ExecStart=/usr/local/bin/prometheus \
+  --config.file=/etc/prometheus/prometheus.yml \
+  --storage.tsdb.path=/var/lib/prometheus \
+  --web.console.templates=/etc/prometheus/consoles \
+  --web.console.libraries=/etc/prometheus/console_libraries
+
+[Install]
+WantedBy=multi-user.target
+-------------------------------------------------
