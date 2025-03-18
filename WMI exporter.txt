@@ -1,0 +1,2 @@
+https://github.com/prometheus-community/windows_exporter/releases/tag/v0.11.1
+msiexec /i C:\Users\sysadmin\Downloads\wmi_exporter-0.11.1-amd64.msi NABLEED_COLLECTORS="ad,dns,cs,cpu,logical_disk,logon,memory,net,os,service,system,tcp" TEXTFILE_DIR="C:\custom_metrics\"
