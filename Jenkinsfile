@@ -1,18 +1,23 @@
 pipeline {
     agent any
+
     environment {
-      DOCKERHUB_CREDENTIALS = credentials('docker-dockerhub')
+        DOCKERHUB_CREDENTIALS = credentials('docker-dockerhub')
     }
+
     stages {
+        stage('Validate') {
+            steps {
+                sh '''
+                sudo docker compose config --quiet && echo "OK" || echo "ERROR"
+                '''
+            }
+        }
+
         stage('Deploy') {
             steps {
-            sh 'sudo docker compose config --quiet && printf "OK\n" || printf "ERROR\n"'
-      }
+                sh 'sudo docker compose up -d'
+            }
+        }
     }
-        stage('Deploy') {
-            steps {
-	    sh 'sudo docker-compose up -d'
-      }
-    }
-  }
 }
