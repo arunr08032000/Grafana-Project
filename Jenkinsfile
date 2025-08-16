@@ -20,14 +20,6 @@ pipeline {
             }
         }
 
-        stage('Docker Login') {
-            steps {
-                sh '''
-                echo $DOCKERHUB_CREDENTIALS_PSW | sudo docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin
-                '''
-            }
-        }
-
         stage('Tag Images') {
             steps {
                 sh '''
