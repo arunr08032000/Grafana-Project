@@ -19,15 +19,32 @@ pipeline {
                 sh 'sudo docker compose up -d'
             }
         }
-        stage('Tag image') {
+
+        stage('Docker Login') {
             steps {
-		sh 'sudo docker tag grafana/grafana-oss:10.4.19 arunr08032000/projects:grafana-server && sudo docker tag prom/prometheus:v2.52.0 arunr08032000/projects:prometheus-server'
-	    }
-	}
-	stage('Push image to DockerHub') {
-	    steps {
-		sh 'sudo docker push arunr08032000/projects:grafana-project'
-	    }
-	}
+                sh '''
+                echo $DOCKERHUB_CREDENTIALS_PSW | sudo docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin
+                '''
+            }
+        }
+
+        stage('Tag Images') {
+            steps {
+                sh '''
+                sudo docker tag grafana/grafana-oss:10.4.19 arunr08032000/projects:grafana-server
+                sudo docker tag prom/prometheus:v2.52.0 arunr08032000/projects:prometheus-server
+                '''
+            }
+        }
+
+        stage('Push Images') {
+            steps {
+                sh '''
+                sudo docker push arunr08032000/projects:grafana-server
+                sudo docker push arunr08032000/projects:prometheus-server
+                '''
+            }
+        }
     }
 }
+
