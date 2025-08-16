@@ -1,15 +1,31 @@
+version: "3.9"
+
 services:
-  Grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
+  dashboard:
+    image: grafana/grafana-oss:10.4.19
+    container_name: grafana-server
     ports:
-      - "3000:3000"
+      - "8787:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
-  
-  Prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
+    volumes:
+      - grafana-data:/var/lib/grafana
+    restart: unless-stopped
+    depends_on:
+      - data_source
+
+  data_source:
+    image: prom/prometheus:3.5
+    container_name: prometheus-server
     ports:
-      - "9090:9090"
+      - "8888:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    restart: unless-stopped
+
+volumes:
+  grafana-data:
+  prometheus-data:
+
