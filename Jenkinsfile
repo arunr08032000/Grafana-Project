@@ -19,24 +19,23 @@ pipeline {
                 sh 'sudo docker compose up -d'
             }
         }
-
         stage('Tag Images') {
-            steps {
-                sh '''
-                sudo docker tag grafana/grafana-oss:10.4.19 arunr08032000/grafana:grafana-server
-                sudo docker tag prom/prometheus:v2.52.0 arunr08032000/prometheus:prometheus-server
-                '''
-            }
-        }
+    	    steps {
+        	sh '''
+        	sudo docker tag grafana/grafana-oss:10.4.19 arunr08032000/grafana-server:10.4.19
+        	sudo docker tag prom/prometheus:v2.52.0 arunr08032000/prometheus-server:v2.52.0
+        	'''
+    	    }
+	}
 
-        stage('Push Images') {
-            steps {
-                sh '''
-                sudo docker push arunr08032000/grafana:dashboard
-                sudo docker push arunr08032000/prometheus:datasource
-                '''
-            }
-        }
+	stage('Push Images') {
+    	    steps {
+        	sh '''
+        	sudo docker push arunr08032000/grafana-server:10.4.19
+       	 	sudo docker push arunr08032000/prometheus-server:v2.52.0
+        	'''
+    	    }
+	}
     }
 }
 
